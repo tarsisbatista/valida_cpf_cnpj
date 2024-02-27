@@ -5,25 +5,34 @@ import re
 
 @functions_framework.http
 def valida_id(request):
+    request_json = request.get_json(silent=True)
+    request_args = request.args
 
-  request_json = request.get_json(silent=True)
-  request_args = request.args
+    if "PF" in request_json['customer_type']:
+        cpf_raw = request_json['customer_id']
+        cpf_raw = re.sub('[^0-9]', '', cpf_raw)
+        if len(cpf_raw) != 11:
+            return ("Invalid Request, CPF does not have 11 numbers", 400)
+        if valida_cpf(cpf_raw) == "cpf valido":
+            return 'CPF válido', 200
+        else:
+            return 'CPF inválido', 400
+
+    elif "PJ" in request_json['customer_type']:
+        cnpj_raw = request_json['customer_id']
+        cnpj_raw = re.sub('[^0-9]', '', cnpj_raw)
+        if len(cnpj_raw) != 14:
+            return ("Invalid Request, CNPJ does not have 14 numbers", 400)
+        if valida_cnpj(cnpj_raw) == "cnpj valido":
+            return 'CNPJ valido', 200
+        else:
+            return 'CNPJ invalido', 400
+
+    else:
+        return "Invalid Request. Invalid customer type.", 400
 
 
-  if "PF" in request_json['customer_type']:
-      cpf = request_json['customer_id']
-      valida_cpf(cpf)
-  elif "PJ" in request_json['customer_type']:
-      cnpj = request_json['customer_id']
-      valida_cnpj(cnpj)
-  else:
-      return "Invalid Request. Invalid customer type.", 400
-
-#BLOCO DE VERIFICAÇÃO PF
 def valida_cpf(cpf):
-    cpf = re.sub('[^0-9]', '', cpf)
-    if len(cpf) != 11:
-        return "Invalid Request, CPF does not have 11 numbers", 400
     # Calcular o primeiro dígito verificador
     soma = 0
     for i in range(9):
@@ -38,16 +47,15 @@ def valida_cpf(cpf):
     digito_verificador2 = 0 if resto == 10 else resto
     # Verificar se os dígitos verificadores são válidos
     if int(cpf[9]) == digito_verificador1 and int(cpf[10]) == digito_verificador2:
-        return "CPF válido.", 200
+        cpf = "cpf valido"
+        return cpf
     else:
-        return "CPF inválido.", 400
+        cpf = "cpf invalido"
+        return cpf
 
 
-#BLOCO DE VERIFICAÇÃO PJ
+# BLOCO DE VERIFICAÇÃO PJ
 def valida_cnpj(cnpj):
-    cnpj = re.sub('[^0-9]', '', cnpj)
-    if len(cnpj) != 14:
-        return "Invalid Request, CNPJ does not have 14 numbers", 400
     # Calcular o primeiro dígito verificador
     soma = 0
     peso = 5
@@ -66,6 +74,8 @@ def valida_cnpj(cnpj):
     digito_verificador2 = 0 if resto < 2 else 11 - resto
     # Verificar se os dígitos verificadores são válidos
     if int(cnpj[12]) == digito_verificador1 and int(cnpj[13]) == digito_verificador2:
-        return "CNPJ VÁLIDO.", 200
+        cnpj = "cnpj valido"
+        return cnpj
     else:
-        return "CNPJ INVÁLIDO.", 400
+        cnpj = "cnpj invalido"
+        return cnpj
