@@ -19,7 +19,7 @@ def valida_id(request):
   else:
       return "Invalid Request. Invalid customer type.", 400
 
-
+#BLOCO DE VERIFICAÇÃO PF
 def valida_cpf(cpf):
     cpf = re.sub('[^0-9]', '', cpf)
     if len(cpf) != 11:
@@ -43,7 +43,7 @@ def valida_cpf(cpf):
         return "CPF inválido.", 400
 
 
- #BLOCO DE VERIFICAÇÃO PJ
+#BLOCO DE VERIFICAÇÃO PJ
 def valida_cnpj(cnpj):
     cnpj = re.sub('[^0-9]', '', cnpj)
     if len(cnpj) != 14:
